@@ -63,6 +63,7 @@ span { font-size: 1rem; }  /* unused -> drop */
       media="print" onload="this.media='all';this.onload=null;">
   </head>
   <body>
+    <p>styled</p>
   </body>
 </html>
 ```
