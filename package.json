@@ -1,0 +1,27 @@
+{
+  "name": "drop-inline-css",
+  "version": "0.0.1",
+  "author": "marmooo",
+  "description": "Parse HTML and drop unused CSS, inline it to HTML.",
+  "license": "MIT",
+  "homepage": "https://github.com/marmooo/drop-inline-css",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/marmooo/drop-inline-css.git"
+  },
+  "bugs": {
+    "url": "https://github.com/marmooo/drop-inline-css/issues"
+  },
+  "main": "src/drop-inline-css.js",
+  "bin": {
+    "drop-inline-css": "bin/drop-inline-css"
+  },
+  "dependencies": {
+    "@parcel/css": "^1.3.2",
+    "commander": "^9.0.0",
+    "dropcss": "^1.0.16",
+    "glob": "^7.2.0",
+    "node-fetch": "^3.2.0",
+    "node-html-parser": "^5.2.0"
+  }
+}
