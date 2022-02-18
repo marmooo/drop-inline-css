@@ -21,7 +21,7 @@
     "commander": "^9.0.0",
     "dropcss": "^1.0.16",
     "glob": "^7.2.0",
-    "node-fetch": "^3.2.0",
+    "node-fetch": "^2.6.7",
     "node-html-parser": "^5.2.0"
   }
 }
