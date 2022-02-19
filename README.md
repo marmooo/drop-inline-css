@@ -20,7 +20,7 @@ Arguments:
 
 Options:
   -V, --version        output the version number
-  -c, --css [path]     CSS for inlining in HTML
+  -c, --css [path]     CSS path for inlining in HTML
   -o, --output [path]  Output path of HTML file/directory
   -r, --recursive      Recursively inline directories
   -h, --help           display help for command

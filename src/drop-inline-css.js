@@ -15,7 +15,7 @@ program
   .version("0.0.1");
 program
   .argument("[input]", "Path of HTML file/direcotry")
-  .option("-c, --css [path]", "CSS for inlining in HTML")
+  .option("-c, --css [path]", "CSS path for inlining in HTML")
   .option("-o, --output [path]", "Output path of HTML file/directory")
   .option("-r, --recursive", "Recursively inline directories");
 program.parse();
