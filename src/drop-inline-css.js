@@ -7,8 +7,8 @@ const dropcss = require("dropcss");
 const parcelcss = require("@parcel/css");
 const htmlparser = require("node-html-parser");
 const { Command } = require("commander");
+const packageJson = require("../package.json");
 
-const packageJson = JSON.parse(fs.readFileSync("package.json"));
 const program = new Command();
 program
   .name(packageJson.name)
