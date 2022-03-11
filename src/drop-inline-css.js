@@ -96,7 +96,7 @@ async function getInlinedHtml(html, inlineCss) {
     );
     cssLinks.forEach((cssLink, i) => {
       const replacerLink = getReplacerLink(urls[i]);
-      cssLinks[0].insertAdjacentHTML("afterend", replacerLink);
+      cssLinks[i].insertAdjacentHTML("afterend", replacerLink);
       cssLink.remove();
     });
     return root.toString();
