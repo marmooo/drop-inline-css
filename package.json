@@ -1,6 +1,6 @@
 {
   "name": "drop-inline-css",
-  "version": "0.0.6",
+  "version": "0.0.7",
   "author": "marmooo",
   "description": "Parse HTML and drop unused CSS, inline it to HTML.",
   "license": "MIT",
