@@ -17,7 +17,7 @@
     "drop-inline-css": "bin/drop-inline-css"
   },
   "dependencies": {
-    "@parcel/css": "^1.5.0",
+    "@parcel/css": "^1.7.1",
     "commander": "^9.0.0",
     "dropcss": "^1.0.16",
     "glob": "^7.2.0",
