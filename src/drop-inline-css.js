@@ -18,7 +18,8 @@ program
   .argument("[input]", "Path of HTML file/direcotry")
   .option("-c, --css [path]", "CSS path for inlining in HTML")
   .option("-o, --output [path]", "Output path of HTML file/directory")
-  .option("-r, --recursive", "Recursively inline directories");
+  .option("-r, --recursive", "Recursively inline directories")
+  .option("-i, --show-inline-css", "Show inline CSS");
 program.parse();
 
 function getDroppedCss(css, html) {
@@ -81,7 +82,7 @@ function getInlinedCss(css, html) {
   return minifiedCss.code.toString();
 }
 
-async function getInlinedHtml(html, inlineCss) {
+async function getInlinedHtml(html, inlineCss, options = {}) {
   const root = htmlparser.parse(html);
   const selector = "head > link[href][rel=stylesheet]:not([media=print])";
   const cssLinks = root.querySelectorAll(selector);
@@ -90,6 +91,7 @@ async function getInlinedHtml(html, inlineCss) {
     if (!inlineCss) {
       const css = await getAllCss(urls);
       inlineCss = getInlinedCss(css.join("\n"), html);
+      if (options.showInlineCss) console.log(inlineCss);
     }
     cssLinks[0].insertAdjacentHTML(
       "beforebegin",
@@ -110,7 +112,7 @@ function output(inlinedHtml, outputPath, options, isFile) {
   if (isFile) {
     if (options.output) {
       fs.writeFileSync(options.output, inlinedHtml);
-    } else {
+    } else if (!options.showInlineCss) {
       console.log(inlinedHtml);
     }
   } else {
@@ -171,10 +173,10 @@ async function dropInlineCssFile(filePath, options) {
   const html = fs.readFileSync(filePath).toString();
   if (options.css) {
     const inlineCss = fs.readFileSync(options.css).toString();
-    const inlinedHtml = await getInlinedHtml(html, inlineCss);
+    const inlinedHtml = await getInlinedHtml(html, inlineCss, options);
     output(inlinedHtml, filePath, options, true);
   } else {
-    const inlinedHtml = await getInlinedHtml(html);
+    const inlinedHtml = await getInlinedHtml(html, undefined, options);
     output(inlinedHtml, filePath, options, true);
   }
 }
@@ -186,7 +188,11 @@ async function dropInlineCss() {
     if (fs.lstatSync(targetPath).isFile()) {
       await dropInlineCssFile(targetPath, options);
     } else {
-      await dropInlineCssDir(targetPath, options);
+      if (options.showInlineCss) {
+        console.error("ERROR: -i / --show-inline-css works only file");
+      } else {
+        await dropInlineCssDir(targetPath, options);
+      }
     }
   } else {
     console.error("ERROR: input path is illegal");

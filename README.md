@@ -19,18 +19,22 @@ Arguments:
   input                Path of HTML file/direcotry
 
 Options:
-  -V, --version        output the version number
-  -c, --css [path]     CSS path for inlining in HTML
-  -o, --output [path]  Output path of HTML file/directory
-  -r, --recursive      Recursively inline directories
-  -h, --help           display help for command
+  -V, --version          output the version number
+  -c, --css [path]       CSS path for inlining in HTML
+  -o, --output [path]    Output path of HTML file/directory
+  -r, --recursive        Recursively inline directories
+  -i, --show-inline-css  Show inline CSS
+  -h, --help             display help for command
 ```
 
 ## Examples
 
 ```
 drop-inline-css input.html > inlined.html
+drop-inline-css -i input.html > inline.css
 drop-inline-css input.html -c inline.css > inlined.html
+drop-inline-css -r src -o docs
+drop-inline-css -r src -o docs -c inline.css
 ```
 
 `input.html`
