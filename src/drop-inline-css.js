@@ -4,7 +4,7 @@ const URL = require("url").URL;
 const glob = require("glob");
 const fetch = require("node-fetch");
 const dropcss = require("dropcss");
-const parcelcss = require("@parcel/css");
+const lightningcss = require("lightningcss");
 const htmlparser = require("node-html-parser");
 const { Command } = require("commander");
 const packageJson = require("../package.json");
@@ -74,7 +74,7 @@ function getReplacerLink(url) {
 
 function getInlinedCss(css, html) {
   const droppedCss = getDroppedCss(css, html);
-  const minifiedCss = parcelcss.transform({
+  const minifiedCss = lightningcss.transform({
     filename: "",
     code: Buffer.from(droppedCss),
     minify: true,
