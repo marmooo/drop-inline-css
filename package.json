@@ -17,7 +17,7 @@
     "drop-inline-css": "bin/drop-inline-css"
   },
   "dependencies": {
-    "lightningcss": "^1.17.1",
+    "lightningcss": "^1.18.0",
     "commander": "^10.0.0",
     "dropcss": "^1.0.16",
     "glob": "^8.1.0",
