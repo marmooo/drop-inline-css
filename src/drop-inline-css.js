@@ -19,7 +19,8 @@ program
   .option("-c, --css [path]", "CSS path for inlining in HTML")
   .option("-o, --output [path]", "Output path of HTML file/directory")
   .option("-r, --recursive", "Recursively inline directories")
-  .option("-i, --show-inline-css", "Show inline CSS");
+  .option("-i, --show-inline-css", "Show inline CSS")
+  .option("-h, --href [href]", "Path of original file");
 program.parse();
 
 function getDroppedCss(css, html) {
@@ -98,8 +99,20 @@ async function getInlinedHtml(html, inlineCss, options = {}) {
       `<style>${inlineCss}</style>`,
     );
     cssLinks.forEach((cssLink, i) => {
-      const replacerLink = getReplacerLink(urls[i]);
-      cssLinks[i].insertAdjacentHTML("afterend", replacerLink);
+      switch (options.href) {
+        case undefined:
+          break;
+        case true: {
+          const replacerLink = getReplacerLink(urls[i]);
+          cssLinks[i].insertAdjacentHTML("afterend", replacerLink);
+          break;
+        }
+        default: {
+          const replacerLink = getReplacerLink(options.href);
+          cssLinks[i].insertAdjacentHTML("afterend", replacerLink);
+          break;
+        }
+      }
       cssLink.remove();
     });
     return root.toString();
@@ -153,7 +166,7 @@ async function dropInlineCssDir(dirPath, options) {
         filePath.slice(dirPath.length);
       mkUpperDirSync(outputPath);
       const html = fs.readFileSync(filePath).toString();
-      const inlinedHtml = await getInlinedHtml(html, inlineCss);
+      const inlinedHtml = await getInlinedHtml(html, inlineCss, options);
       output(inlinedHtml, outputPath, options, false);
     }
   } else {
@@ -163,7 +176,7 @@ async function dropInlineCssDir(dirPath, options) {
         filePath.slice(dirPath.length);
       mkUpperDirSync(outputPath);
       const html = fs.readFileSync(filePath).toString();
-      const inlinedHtml = await getInlinedHtml(html);
+      const inlinedHtml = await getInlinedHtml(html, undefined, options);
       output(inlinedHtml, outputPath, options, false);
     }
   }
