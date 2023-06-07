@@ -18,7 +18,7 @@ const dropInlineCss = require("./src/drop-inline-css.js");
 async function build() {
   await dropInlineCss("test.html"); // -> stdout
   const result = await dropInlineCss("test.html", {
-    output: "test.min.html"
+    output: "test.min.html",
   });
 }
 
@@ -33,7 +33,7 @@ Usage: drop-inline-css [options] [input]
 Parse HTML and drop unused CSS, inline it to HTML.
 
 Arguments:
-  input                Path of HTML file/direcotry
+  input                  Path of HTML file/direcotry
 
 Options:
   -V, --version          output the version number
@@ -41,7 +41,8 @@ Options:
   -o, --output [path]    Output path of HTML file/directory
   -r, --recursive        Recursively inline directories
   -i, --show-inline-css  Show inline CSS
-  -h, --help             display help for command
+  -h, --href [href]      Path of original file
+  --help                 display help for command
 ```
 
 ### Examples
