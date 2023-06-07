@@ -2,13 +2,30 @@
 
 Parse HTML and drop unused CSS, inline it to HTML.
 
-## Install
+## Installation
 
 ```
 npm install drop-inline-css -g
 ```
 
 ## Usage
+
+### Node.js
+
+```
+const dropInlineCss = require("./src/drop-inline-css.js");
+
+async function build() {
+  await dropInlineCss("test.html"); // -> stdout
+  const result = await dropInlineCss("test.html", {
+    output: "test.min.html"
+  });
+}
+
+build();
+```
+
+### CLI
 
 ```
 Usage: drop-inline-css [options] [input]
@@ -27,7 +44,7 @@ Options:
   -h, --help             display help for command
 ```
 
-## Examples
+### Examples
 
 ```
 drop-inline-css input.html > inlined.html

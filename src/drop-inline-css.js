@@ -6,22 +6,6 @@ const fetch = require("node-fetch");
 const dropcss = require("dropcss");
 const lightningcss = require("lightningcss");
 const htmlparser = require("node-html-parser");
-const { Command } = require("commander");
-const packageJson = require("../package.json");
-
-const program = new Command();
-program
-  .name(packageJson.name)
-  .description(packageJson.description)
-  .version(packageJson.version);
-program
-  .argument("[input]", "Path of HTML file/direcotry")
-  .option("-c, --css [path]", "CSS path for inlining in HTML")
-  .option("-o, --output [path]", "Output path of HTML file/directory")
-  .option("-r, --recursive", "Recursively inline directories")
-  .option("-i, --show-inline-css", "Show inline CSS")
-  .option("-h, --href [href]", "Path of original file");
-program.parse();
 
 function getDroppedCss(css, html) {
   const dropped = dropcss({
@@ -194,9 +178,7 @@ async function dropInlineCssFile(filePath, options) {
   }
 }
 
-async function dropInlineCss() {
-  const targetPath = program.args[0];
-  const options = program.opts();
+async function dropInlineCss(targetPath, options = {}) {
   if (fs.existsSync(targetPath)) {
     if (fs.lstatSync(targetPath).isFile()) {
       await dropInlineCssFile(targetPath, options);
