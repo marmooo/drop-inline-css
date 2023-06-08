@@ -3,19 +3,31 @@ const path = require("path");
 const URL = require("url").URL;
 const glob = require("glob");
 const fetch = require("node-fetch");
-const dropcss = require("dropcss");
+// const dropcss = require("dropcss");
+const { PurgeCSS } = require("purgecss");
 const lightningcss = require("lightningcss");
 const htmlparser = require("node-html-parser");
 
-function getDroppedCss(css, html) {
-  const dropped = dropcss({
-    css,
-    html,
-    shouldDrop: () => {
-      return true;
-    },
-  });
-  return dropped.css;
+async function getDroppedCss(css, html) {
+  // const dropped = dropcss({
+  //   css,
+  //   html,
+  //   shouldDrop: () => {
+  //     return true;
+  //   },
+  // });
+  // return dropped.css;
+  const config = {
+    content: [{
+      raw: html,
+      extension: "html",
+    }],
+    css: [{
+      raw: css,
+    }],
+  };
+  const result = await new PurgeCSS().purge(config);
+  return result[0].css;
 }
 
 async function getCss(url) {
@@ -57,8 +69,8 @@ function getReplacerLink(url) {
   `;
 }
 
-function getInlinedCss(css, html) {
-  const droppedCss = getDroppedCss(css, html);
+async function getInlinedCss(css, html) {
+  const droppedCss = await getDroppedCss(css, html);
   const minifiedCss = lightningcss.transform({
     filename: "",
     code: Buffer.from(droppedCss),
@@ -75,7 +87,7 @@ async function getInlinedHtml(html, inlineCss, options = {}) {
     const urls = cssLinks.map((cssLink) => cssLink._attrs.href);
     if (!inlineCss) {
       const css = await getAllCss(urls);
-      inlineCss = getInlinedCss(css.join("\n"), html);
+      inlineCss = await getInlinedCss(css.join("\n"), html);
       if (options.showInlineCss) console.log(inlineCss);
     }
     cssLinks[0].insertAdjacentHTML(
