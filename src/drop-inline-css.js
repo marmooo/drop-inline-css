@@ -138,9 +138,7 @@ function mkUpperDirSync(filePath) {
 
 async function dropInlineCssDir(dirPath, options) {
   fs.mkdirSync(dirPath, { recursive: true });
-  if (dirPath.at(-1) != path.sep) {
-    dirPath += path.sep;
-  }
+  dirPath = path.resolve(dirPath);
   const filePaths = globHtml(dirPath, options.recursive);
   if (options.css) {
     const inlineCss = fs.readFileSync(options.css).toString();
