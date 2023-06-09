@@ -48,9 +48,10 @@ Options:
 ### Examples
 
 ```
-drop-inline-css input.html > inlined.html
+drop-inline-css input.html > inlined1.html
+drop-inline-css input.html --href base.css > inlined2.html
 drop-inline-css -i input.html > inline.css
-drop-inline-css input.html -c inline.css > inlined.html
+drop-inline-css input.html --css inline.css > inlined3.html
 drop-inline-css -r src -o docs
 drop-inline-css -r src -o docs -c inline.css
 ```
@@ -75,13 +76,26 @@ p { text-decoration: underline; } /* used -> inline */
 span { font-size: 1rem; }  /* unused -> drop */
 ```
 
-`inlined.html`
+`inlined1.html`
 
 ```html
 <html>
   <head>
     <style>p { text-decoration: underline; }</style>
-    <link rel="stylesheet" href="style.css"
+  </head>
+  <body>
+    <p>styled</p>
+  </body>
+</html>
+```
+
+`inlined2.html`
+
+```html
+<html>
+  <head>
+    <style>p { text-decoration: underline; }</style>
+    <link rel="stylesheet" href="base.css"
       media="print" onload="this.media='all';this.onload=null;">
   </head>
   <body>
