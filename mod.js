@@ -1,12 +1,10 @@
-const fs = require("fs");
-const path = require("path");
-const URL = require("url").URL;
-const glob = require("glob");
-const fetch = require("node-fetch");
-// const dropcss = require("dropcss");
-const { PurgeCSS } = require("purgecss");
-const lightningcss = require("lightningcss");
-const htmlparser = require("node-html-parser");
+import { SEP } from "https://deno.land/std/path/separator.ts";
+import { basename, resolve } from "https://deno.land/std/path/mod.ts";
+import { expandGlobSync } from "https://deno.land/std/fs/expand_glob.ts";
+// import dropcss from "npm:dropcss@1.0.16";
+import { PurgeCSS } from "npm:purgecss@5.0.0";
+import { transform } from "npm:lightningcss@1.21.0";
+import { parse } from "npm:node-html-parser@6.1.5";
 
 async function getDroppedCss(css, html) {
   // const dropped = dropcss({
@@ -45,9 +43,9 @@ async function getCss(url) {
     return css;
   } catch {
     if (url.startsWith("/")) {
-      return fs.readFileSync("." + url).toString();
+      return Deno.readTextFileSync("." + url).toString();
     } else {
-      return fs.readFileSync(url).toString();
+      return Deno.readTextFileSync(url).toString();
     }
   }
 }
@@ -71,16 +69,16 @@ function getReplacerLink(url) {
 
 async function getInlinedCss(css, html) {
   const droppedCss = await getDroppedCss(css, html);
-  const minifiedCss = lightningcss.transform({
+  const minified = transform({
     filename: "",
-    code: Buffer.from(droppedCss),
+    code: new TextEncoder().encode(droppedCss),
     minify: true,
   });
-  return minifiedCss.code.toString();
+  return new TextDecoder().decode(minified.code);
 }
 
 async function getInlinedHtml(html, inlineCss, options = {}) {
-  const root = htmlparser.parse(html);
+  const root = parse(html);
   const selector = "head > link[href][rel=stylesheet]:not([media=print])";
   const cssLinks = root.querySelectorAll(selector);
   if (cssLinks.length > 0) {
@@ -120,13 +118,13 @@ async function getInlinedHtml(html, inlineCss, options = {}) {
 function output(inlinedHtml, outputPath, options, isFile) {
   if (isFile) {
     if (options.output) {
-      fs.writeFileSync(options.output, inlinedHtml);
+      Deno.writeTextFileSync(options.output, inlinedHtml);
     } else if (!options.showInlineCss) {
       console.log(inlinedHtml);
     }
   } else {
     if (options.output) {
-      fs.writeFileSync(outputPath, inlinedHtml);
+      Deno.writeTextFileSync(outputPath, inlinedHtml);
     } else {
       console.error("ERROR: need -o [dir] / --output [dir]");
     }
@@ -134,42 +132,39 @@ function output(inlinedHtml, outputPath, options, isFile) {
 }
 
 function globHtml(dir, recursive) {
-  const s = path.sep;
   if (recursive) {
-    return glob.sync(dir + `${s}**${s}*.htm?(l)`);
+    return expandGlobSync(dir + `${SEP}**${SEP}*.htm?(l)`);
   } else {
-    return glob.sync(dir + `${s}*.htm?(l)`);
+    return expandGlobSync(dir + `${SEP}*.htm?(l)`);
   }
 }
 
 function mkUpperDirSync(filePath) {
-  const fileName = path.basename(filePath);
+  const fileName = basename(filePath);
   const innerDir = filePath.slice(0, -fileName.length);
-  fs.mkdirSync(innerDir, { recursive: true });
+  Deno.mkdirSync(innerDir, { recursive: true });
 }
 
 async function dropInlineCssDir(dirPath, options) {
-  fs.mkdirSync(dirPath, { recursive: true });
-  dirPath = path.resolve(dirPath);
-  const filePaths = globHtml(dirPath, options.recursive);
+  Deno.mkdirSync(dirPath, { recursive: true });
+  dirPath = resolve(dirPath);
+  const files = globHtml(dirPath, options.recursive);
   if (options.css) {
-    const inlineCss = fs.readFileSync(options.css).toString();
-    for (const filePath of filePaths) {
-      console.info(filePath);
-      const outputPath = options.output + path.sep +
-        filePath.slice(dirPath.length);
+    const inlineCss = Deno.readTextFileSync(options.css).toString();
+    for (const file of files) {
+      console.info(file.path);
+      const outputPath = options.output + SEP + file.path.slice(dirPath.length);
       mkUpperDirSync(outputPath);
-      const html = fs.readFileSync(filePath).toString();
+      const html = Deno.readTextFileSync(file.path).toString();
       const inlinedHtml = await getInlinedHtml(html, inlineCss, options);
       output(inlinedHtml, outputPath, options, false);
     }
   } else {
-    for (const filePath of filePaths) {
-      console.info(filePath);
-      const outputPath = options.output + path.sep +
-        filePath.slice(dirPath.length);
+    for (const file of files) {
+      console.info(file.path);
+      const outputPath = options.output + SEP + file.path.slice(dirPath.length);
       mkUpperDirSync(outputPath);
-      const html = fs.readFileSync(filePath).toString();
+      const html = Deno.readTextFileSync(file.path).toString();
       const inlinedHtml = await getInlinedHtml(html, undefined, options);
       output(inlinedHtml, outputPath, options, false);
     }
@@ -177,9 +172,9 @@ async function dropInlineCssDir(dirPath, options) {
 }
 
 async function dropInlineCssFile(filePath, options) {
-  const html = fs.readFileSync(filePath).toString();
+  const html = Deno.readTextFileSync(filePath).toString();
   if (options.css) {
-    const inlineCss = fs.readFileSync(options.css).toString();
+    const inlineCss = Deno.readTextFileSync(options.css).toString();
     const inlinedHtml = await getInlinedHtml(html, inlineCss, options);
     output(inlinedHtml, filePath, options, true);
   } else {
@@ -188,9 +183,10 @@ async function dropInlineCssFile(filePath, options) {
   }
 }
 
-async function dropInlineCss(targetPath, options = {}) {
-  if (fs.existsSync(targetPath)) {
-    if (fs.lstatSync(targetPath).isFile()) {
+export async function dropInlineCss(targetPath, options = {}) {
+  try {
+    const fileInfo = Deno.statSync(targetPath);
+    if (fileInfo.isFile) {
       await dropInlineCssFile(targetPath, options);
     } else {
       if (options.showInlineCss) {
@@ -199,9 +195,11 @@ async function dropInlineCss(targetPath, options = {}) {
         await dropInlineCssDir(targetPath, options);
       }
     }
-  } else {
-    console.error("ERROR: input path is illegal");
+  } catch (error) {
+    if (error instanceof Deno.errors.NotFound) {
+      console.error("ERROR: input path is illegal");
+    } else {
+      console.log(error);
+    }
   }
 }
-
-module.exports = dropInlineCss;

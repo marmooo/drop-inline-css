@@ -4,16 +4,23 @@ Parse HTML and drop unused CSS, inline it to HTML.
 
 ## Installation
 
+### Deno
+
+```
+deno install -fr -A --name drop-inline-css \
+https://raw.githubusercontent.com/marmooo/drop-inline-css/main/cli.js
+```
+
+### Node
+
 ```
 npm install drop-inline-css -g
 ```
 
 ## Usage
 
-### Node.js
-
 ```
-const dropInlineCss = require("./src/drop-inline-css.js");
+import { dropInlineCss } from "drop-inline-css";
 
 async function build() {
   await dropInlineCss("test.html"); // -> stdout
