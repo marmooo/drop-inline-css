@@ -1,4 +1,4 @@
-import { SEP } from "https://deno.land/std/path/separator.ts";
+import { SEPARATOR } from "https://deno.land/std/path/constants.ts";
 import { basename, resolve } from "https://deno.land/std/path/mod.ts";
 import { expandGlobSync } from "https://deno.land/std/fs/expand_glob.ts";
 // import dropcss from "npm:dropcss@1.0.16";
@@ -133,9 +133,9 @@ function output(inlinedHtml, outputPath, options, isFile) {
 
 function globHtml(dir, recursive) {
   if (recursive) {
-    return expandGlobSync(dir + `${SEP}**${SEP}*.htm?(l)`);
+    return expandGlobSync(dir + `${SEPARATOR}**${SEPARATOR}*.htm?(l)`);
   } else {
-    return expandGlobSync(dir + `${SEP}*.htm?(l)`);
+    return expandGlobSync(dir + `${SEPARATOR}*.htm?(l)`);
   }
 }
 
@@ -153,7 +153,8 @@ async function dropInlineCssDir(dirPath, options) {
     const inlineCss = Deno.readTextFileSync(options.css).toString();
     for (const file of files) {
       console.info(file.path);
-      const outputPath = options.output + SEP + file.path.slice(dirPath.length);
+      const outputPath = options.output + SEPARATOR +
+        file.path.slice(dirPath.length);
       mkUpperDirSync(outputPath);
       const html = Deno.readTextFileSync(file.path).toString();
       const inlinedHtml = await getInlinedHtml(html, inlineCss, options);
@@ -162,7 +163,8 @@ async function dropInlineCssDir(dirPath, options) {
   } else {
     for (const file of files) {
       console.info(file.path);
-      const outputPath = options.output + SEP + file.path.slice(dirPath.length);
+      const outputPath = options.output + SEPARATOR +
+        file.path.slice(dirPath.length);
       mkUpperDirSync(outputPath);
       const html = Deno.readTextFileSync(file.path).toString();
       const inlinedHtml = await getInlinedHtml(html, undefined, options);
