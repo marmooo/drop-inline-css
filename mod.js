@@ -6,28 +6,6 @@ import { PurgeCSS } from "npm:purgecss@5.0.0";
 import { transform } from "npm:lightningcss@1.23.0";
 import { parse } from "npm:node-html-parser@6.1.12";
 
-async function getDroppedCss(css, html) {
-  // const dropped = dropcss({
-  //   css,
-  //   html,
-  //   shouldDrop: () => {
-  //     return true;
-  //   },
-  // });
-  // return dropped.css;
-  const config = {
-    content: [{
-      raw: html,
-      extension: "html",
-    }],
-    css: [{
-      raw: css,
-    }],
-  };
-  const result = await new PurgeCSS().purge(config);
-  return result[0].css;
-}
-
 async function getCss(url) {
   try {
     new URL(url);
@@ -60,15 +38,27 @@ async function getAllCss(urls) {
   return await Promise.all(promises);
 }
 
-function getReplacerLink(url) {
-  return `
-    <link rel="stylesheet" href="${url}"
-      media="print" onload="this.media='all';this.onload=null;">
-  `;
-}
+async function dropCss(css, html) {
+  // const dropped = dropcss({
+  //   css,
+  //   html,
+  //   shouldDrop: () => {
+  //     return true;
+  //   },
+  // });
+  // const droppedCss = dropped.css;
+  const config = {
+    content: [{
+      raw: html,
+      extension: "html",
+    }],
+    css: [{
+      raw: css,
+    }],
+  };
+  const purged = await new PurgeCSS().purge(config);
+  const droppedCss = purged[0].css;
 
-async function getInlinedCss(css, html) {
-  const droppedCss = await getDroppedCss(css, html);
   const minified = transform({
     filename: "",
     code: new TextEncoder().encode(droppedCss),
@@ -77,49 +67,49 @@ async function getInlinedCss(css, html) {
   return new TextDecoder().decode(minified.code);
 }
 
-async function getInlinedHtml(html, inlineCss, options = {}) {
-  const root = parse(html);
-  const selector = "head > link[href][rel=stylesheet]:not([media=print])";
-  const cssLinks = root.querySelectorAll(selector);
-  if (cssLinks.length > 0) {
-    const urls = cssLinks.map((cssLink) => cssLink._attrs.href);
-    if (!inlineCss) {
-      const css = await getAllCss(urls);
-      inlineCss = await getInlinedCss(css.join("\n"), html);
-      if (options.showInlineCss) console.log(inlineCss);
-    }
-    cssLinks[0].insertAdjacentHTML(
-      "beforebegin",
-      `<style>${inlineCss}</style>`,
-    );
-    cssLinks.forEach((cssLink, i) => {
-      switch (options.href) {
-        case undefined:
-          break;
-        case true: {
-          const replacerLink = getReplacerLink(urls[i]);
-          cssLinks[i].insertAdjacentHTML("afterend", replacerLink);
-          break;
-        }
-        default: {
-          const replacerLink = getReplacerLink(options.href);
-          cssLinks[i].insertAdjacentHTML("afterend", replacerLink);
-          break;
-        }
-      }
-      cssLink.remove();
-    });
-    return root.toString();
-  } else {
-    return html;
+async function inlineHtml(doc) {
+  const linkSelector = "link[href][rel=stylesheet][class=inline-css]";
+  const cssLinks = doc.querySelectorAll(linkSelector);
+  for (const cssLink of cssLinks) {
+    const url = cssLink._attrs.href;
+    const response = await fetch(url);
+    const css = await response.text();
+    cssLinks[0].insertAdjacentHTML("beforebegin", `<style>${css}</style>`);
+    cssLink.remove();
   }
+  return doc;
 }
 
-function output(inlinedHtml, outputPath, options, isFile) {
+async function dropInlineHtml(doc, css, options) {
+  const head = doc.querySelector("head");
+  await dropInlineHtmlBySelector(head, doc, css, options);
+  for (const template of doc.querySelectorAll("template")) {
+    await dropInlineHtmlBySelector(template, doc, css, options);
+  }
+  return doc;
+}
+
+async function dropInlineHtmlBySelector(root, doc, css, options = {}) {
+  const linkSelector = "link[href][rel=stylesheet][class=drop-inline-css]";
+  const cssLinks = root.querySelectorAll(linkSelector);
+  if (cssLinks.length == 0) return doc;
+  const urls = cssLinks.map((cssLink) => cssLink._attrs.href);
+  if (!css) {
+    const allCss = await getAllCss(urls);
+    css = await dropCss(allCss.join("\n"), doc.toString());
+  }
+  if (options.showDroppedCss) console.log(css);
+  cssLinks[0].insertAdjacentHTML("beforebegin", `<style>${css}</style>`);
+  cssLinks.forEach((cssLink) => cssLink.remove());
+  return doc;
+}
+
+function output(doc, outputPath, options, isFile) {
+  const inlinedHtml = doc.toString();
   if (isFile) {
     if (options.output) {
       Deno.writeTextFileSync(options.output, inlinedHtml);
-    } else if (!options.showInlineCss) {
+    } else if (!options.showDroppedCss) {
       console.log(inlinedHtml);
     }
   } else {
@@ -150,15 +140,17 @@ async function dropInlineCssDir(dirPath, options) {
   dirPath = resolve(dirPath);
   const files = globHtml(dirPath, options.recursive);
   if (options.css) {
-    const inlineCss = Deno.readTextFileSync(options.css).toString();
+    const css = Deno.readTextFileSync(options.css).toString();
     for (const file of files) {
       console.info(file.path);
       const outputPath = options.output + SEPARATOR +
         file.path.slice(dirPath.length);
       mkUpperDirSync(outputPath);
       const html = Deno.readTextFileSync(file.path).toString();
-      const inlinedHtml = await getInlinedHtml(html, inlineCss, options);
-      output(inlinedHtml, outputPath, options, false);
+      const doc = parse(html);
+      await inlineHtml(doc);
+      await dropInlineHtml(doc, css, options);
+      output(doc, outputPath, options, false);
     }
   } else {
     for (const file of files) {
@@ -167,21 +159,26 @@ async function dropInlineCssDir(dirPath, options) {
         file.path.slice(dirPath.length);
       mkUpperDirSync(outputPath);
       const html = Deno.readTextFileSync(file.path).toString();
-      const inlinedHtml = await getInlinedHtml(html, undefined, options);
-      output(inlinedHtml, outputPath, options, false);
+      const doc = parse(html);
+      await inlineHtml(doc);
+      await dropInlineHtml(doc, undefined, options);
+      output(doc, outputPath, options, false);
     }
   }
 }
 
 async function dropInlineCssFile(filePath, options) {
   const html = Deno.readTextFileSync(filePath).toString();
+  const doc = parse(html);
   if (options.css) {
-    const inlineCss = Deno.readTextFileSync(options.css).toString();
-    const inlinedHtml = await getInlinedHtml(html, inlineCss, options);
-    output(inlinedHtml, filePath, options, true);
+    const css = Deno.readTextFileSync(options.css).toString();
+    await inlineHtml(doc);
+    await dropInlineHtml(doc, css, options);
+    output(doc, filePath, options, true);
   } else {
-    const inlinedHtml = await getInlinedHtml(html, undefined, options);
-    output(inlinedHtml, filePath, options, true);
+    await inlineHtml(doc);
+    dropInlineHtml(doc, undefined, options);
+    output(doc, filePath, options, true);
   }
 }
 
@@ -191,7 +188,7 @@ export async function dropInlineCss(targetPath, options = {}) {
     if (fileInfo.isFile) {
       await dropInlineCssFile(targetPath, options);
     } else {
-      if (options.showInlineCss) {
+      if (options.showDroppedCss) {
         console.error("ERROR: -i / --show-inline-css works only file");
       } else {
         await dropInlineCssDir(targetPath, options);

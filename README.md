@@ -40,25 +40,24 @@ Usage: drop-inline-css [options] [input]
 Parse HTML and drop unused CSS, inline it to HTML.
 
 Arguments:
-  input                  Path of HTML file/direcotry
+  input                   Path of HTML file/direcotry
 
 Options:
-  -V, --version          output the version number
-  -c, --css [path]       CSS path for inlining in HTML
-  -o, --output [path]    Output path of HTML file/directory
-  -r, --recursive        Recursively inline directories
-  -i, --show-inline-css  Show inline CSS
-  -h, --href [href]      Path of original file
-  --help                 display help for command
+  -V, --version           output the version number
+  -c, --css [path]        CSS path for inlining in HTML
+  -o, --output [path]     Output path of HTML file/directory
+  -r, --recursive         Recursively inline directories
+  -d, --show-dropped-css  Show dropped CSS one line per head/template node
+  -h, --help              display help for command
 ```
 
 ### Examples
 
 ```
-drop-inline-css input.html > inlined1.html
-drop-inline-css input.html --href base.css > inlined2.html
-drop-inline-css -i input.html > inline.css
-drop-inline-css input.html --css inline.css > inlined3.html
+drop-inline-css input.html > inlined.html
+drop-inline-css input.html > inlined.html
+drop-inline-css -d input.html > dropped.css
+drop-inline-css input.html --css dropped.css > inlined.html
 drop-inline-css -r src -o docs
 drop-inline-css -r src -o docs -c inline.css
 ```
@@ -68,7 +67,13 @@ drop-inline-css -r src -o docs -c inline.css
 ```html
 <html>
   <head>
-    <link rel="stylesheet" href="style.css"></link>
+    <!-- optimization behavior changes depending on class name
+      "drop-inline-css": remove unused properties from CSS file and inline them
+      "inline-css": inline the contents of CSS file as is
+    -->
+    <link class="drop-inline-css" rel="stylesheet" href="inefficient.css"></link>
+    <link class="inline-css" rel="stylesheet" href="efficient.css"></link>
+    <link rel="stylesheet" href="keep.css"></link>
   </head>
   <body>
     <p>styled</p>
@@ -76,11 +81,17 @@ drop-inline-css -r src -o docs -c inline.css
 </html>
 ```
 
-`inline.css` or `style.css`
+`inefficient.css`
 
 ```css
 p { text-decoration: underline; } /* used -> inline */
 span { font-size: 1rem; }  /* unused -> drop */
+```
+
+`efficient.css`
+
+```css
+pre { color: red; }
 ```
 
 `inlined1.html`
@@ -89,21 +100,8 @@ span { font-size: 1rem; }  /* unused -> drop */
 <html>
   <head>
     <style>p { text-decoration: underline; }</style>
-  </head>
-  <body>
-    <p>styled</p>
-  </body>
-</html>
-```
-
-`inlined2.html`
-
-```html
-<html>
-  <head>
-    <style>p { text-decoration: underline; }</style>
-    <link rel="stylesheet" href="base.css"
-      media="print" onload="this.media='all';this.onload=null;">
+    <style>pre { color: red; }</style>
+    <link rel="stylesheet" href="keep.css"></link>
   </head>
   <body>
     <p>styled</p>
