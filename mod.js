@@ -82,7 +82,9 @@ async function inlineHtml(doc) {
 
 async function dropInlineHtml(doc, css, options) {
   const head = doc.querySelector("head");
-  await dropInlineHtmlBySelector(head, doc, css, options);
+  if (head) {
+    await dropInlineHtmlBySelector(head, doc, css, options);
+  }
   for (const template of doc.querySelectorAll("template")) {
     await dropInlineHtmlBySelector(template, doc, css, options);
   }
