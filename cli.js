@@ -11,7 +11,10 @@ program
   .option("-c, --css [path]", "CSS path for inlining in HTML")
   .option("-o, --output [path]", "Output path of HTML file/directory")
   .option("-r, --recursive", "Recursively inline directories")
-  .option("-d, --show-dropped-css", "Show dropped CSS one line per head/template node");
+  .option(
+    "-d, --show-dropped-css",
+    "Show dropped CSS one line per head/template node",
+  );
 program.parse();
 
 const targetPath = program.args[0];
