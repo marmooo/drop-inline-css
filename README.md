@@ -7,7 +7,7 @@ Parse HTML and drop unused CSS, inline it to HTML.
 ### Deno
 
 ```
-deno install -fr -A -g --name drop-inline-css \
+deno install -fr -A --name drop-inline-css -g \
 https://raw.githubusercontent.com/marmooo/drop-inline-css/main/cli.js
 ```
 
