@@ -2,7 +2,7 @@ import { SEPARATOR } from "https://deno.land/std/path/constants.ts";
 import { basename, resolve } from "https://deno.land/std/path/mod.ts";
 import { expandGlobSync } from "https://deno.land/std/fs/expand_glob.ts";
 // import dropcss from "npm:dropcss@1.0.16";
-import { PurgeCSS } from "npm:purgecss@5.0.0";
+import { PurgeCSS } from "npm:purgecss@6.0.0";
 import { transform } from "npm:lightningcss@1.24.1";
 import { parse } from "npm:node-html-parser@6.1.12";
 
