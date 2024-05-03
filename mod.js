@@ -9,14 +9,7 @@ import { parse } from "npm:node-html-parser@6.1.12";
 async function getCss(url) {
   try {
     new URL(url);
-    const response = await fetch(url)
-      .then((response) => {
-        if (!response.ok) throw Error(response.statusText);
-        return response;
-      })
-      .catch((err) => {
-        console.error(err);
-      });
+    const response = await fetch(url);
     const css = await response.text();
     return css;
   } catch {
@@ -72,8 +65,7 @@ async function inlineHtml(doc) {
   const cssLinks = doc.querySelectorAll(linkSelector);
   for (const cssLink of cssLinks) {
     const url = cssLink._attrs.href;
-    const response = await fetch(url);
-    const css = await response.text();
+    const css = await getCss(url);
     cssLinks[0].insertAdjacentHTML("beforebegin", `<style>${css}</style>`);
     cssLink.remove();
   }
