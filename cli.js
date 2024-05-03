@@ -5,7 +5,7 @@ const program = new Command();
 program
   .name("drop-inline-css")
   .description("Parse HTML and drop unused CSS, inline it to HTML.")
-  .version("0.3.1");
+  .version("0.3.2");
 program
   .argument("[input]", "Path of HTML file/direcotry")
   .option("-c, --css [path]", "CSS path for inlining in HTML")
