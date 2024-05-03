@@ -4,7 +4,7 @@ import { expandGlobSync } from "https://deno.land/std/fs/expand_glob.ts";
 // import dropcss from "npm:dropcss@1.0.16";
 import { PurgeCSS } from "npm:purgecss@6.0.0";
 import { transform } from "npm:lightningcss@1.24.1";
-import { parse } from "npm:node-html-parser@6.1.12";
+import { parse } from "npm:node-html-parser@6.1.13";
 
 async function getCss(url) {
   try {
