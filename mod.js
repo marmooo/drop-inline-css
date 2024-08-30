@@ -1,6 +1,5 @@
-import { SEPARATOR } from "https://deno.land/std/path/constants.ts";
-import { basename, resolve } from "https://deno.land/std/path/mod.ts";
-import { expandGlobSync } from "https://deno.land/std/fs/expand_glob.ts";
+import { basename, resolve, SEPARATOR } from "jsr:@std/path";
+import { expandGlobSync } from "jsr:@std/fs/expand-glob";
 // import dropcss from "npm:dropcss@1.0.16";
 import { PurgeCSS } from "npm:purgecss@6.0.0";
 import { transform } from "npm:lightningcss@1.26.0";
