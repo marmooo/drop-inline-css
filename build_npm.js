@@ -22,7 +22,7 @@ await build({
     license: "MIT",
     repository: {
       type: "git",
-      url: "git+https://github.com/marmooo/drop-inline-css/repo.git",
+      url: "git+https://github.com/marmooo/drop-inline-css.git",
     },
     bugs: {
       url: "https://github.com/marmooo/drop-inline-css/issues",
