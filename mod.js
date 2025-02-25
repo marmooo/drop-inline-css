@@ -2,7 +2,7 @@ import { basename, resolve, SEPARATOR } from "jsr:@std/path";
 import { expandGlobSync } from "jsr:@std/fs/expand-glob";
 // import dropcss from "npm:dropcss@1.0.16";
 import { PurgeCSS } from "npm:purgecss@6.0.0";
-import { transform } from "npm:lightningcss@1.26.0";
+import { transform } from "npm:lightningcss@1.29.0";
 import { parse } from "npm:node-html-parser@7.0.1";
 
 async function getCss(url) {
