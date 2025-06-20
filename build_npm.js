@@ -12,6 +12,7 @@ await build({
     },
   ],
   outDir: "./npm",
+  typeCheck: false,
   shims: {
     deno: true,
   },
