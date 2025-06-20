@@ -1,4 +1,4 @@
-import { Command } from "npm:commander@13.1.0";
+import { Command } from "commander";
 import { dropInlineCss } from "./mod.js";
 
 const program = new Command();
