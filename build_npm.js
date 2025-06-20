@@ -18,7 +18,7 @@ await build({
   },
   package: {
     name: "drop-inline-css",
-    version: "0.3.5",
+    version: "0.3.6",
     description: "Parse HTML and drop unused CSS, inline it to HTML.",
     license: "MIT",
     repository: {
