@@ -60,8 +60,19 @@ async function dropCss(css, html) {
 }
 
 async function inlineHtml(doc) {
+  const head = doc.querySelector("head");
+  if (head) {
+    await inlineHtmlBySelector(head, doc);
+  }
+  for (const template of doc.querySelectorAll("template")) {
+    await inlineHtmlBySelector(template, doc);
+  }
+  return doc;
+}
+
+async function inlineHtmlBySelector(root, doc) {
   const linkSelector = "link[href][rel=stylesheet][class=inline-css]";
-  const cssLinks = doc.querySelectorAll(linkSelector);
+  const cssLinks = root.querySelectorAll(linkSelector);
   if (cssLinks.length == 0) return doc;
   const urls = cssLinks.map((cssLink) => cssLink._attrs.href);
   const allCss = await getAllCss(urls);
