@@ -62,6 +62,7 @@ async function dropCss(css, html) {
 async function inlineHtml(doc) {
   const linkSelector = "link[href][rel=stylesheet][class=inline-css]";
   const cssLinks = doc.querySelectorAll(linkSelector);
+  if (cssLinks.length == 0) return doc;
   const urls = cssLinks.map((cssLink) => cssLink._attrs.href);
   const allCss = await getAllCss(urls);
   const css = allCss.join("\n");
