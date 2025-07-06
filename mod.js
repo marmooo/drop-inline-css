@@ -71,25 +71,25 @@ async function inlineHtml(doc) {
   return doc;
 }
 
-async function dropInlineHtml(doc, css, options) {
+async function dropInlineHtml(doc, html, css, options) {
   const head = doc.querySelector("head");
   if (head) {
-    await dropInlineHtmlBySelector(head, doc, css, options);
+    await dropInlineHtmlBySelector(head, doc, html, css, options);
   }
   for (const template of doc.querySelectorAll("template")) {
-    await dropInlineHtmlBySelector(template, doc, css, options);
+    await dropInlineHtmlBySelector(template, doc, html, css, options);
   }
   return doc;
 }
 
-async function dropInlineHtmlBySelector(root, doc, css, options = {}) {
+async function dropInlineHtmlBySelector(root, doc, html, css, options = {}) {
   const linkSelector = "link[href][rel=stylesheet][class=drop-inline-css]";
   const cssLinks = root.querySelectorAll(linkSelector);
   if (cssLinks.length == 0) return doc;
   const urls = cssLinks.map((cssLink) => cssLink._attrs.href);
   if (!css) {
     const allCss = await getAllCss(urls);
-    css = await dropCss(allCss.join("\n"), doc.toString());
+    css = await dropCss(allCss.join("\n"), html);
   }
   if (options.showDroppedCss) console.log(css);
   cssLinks[0].insertAdjacentHTML("beforebegin", `<style>${css}</style>`);
@@ -142,7 +142,7 @@ async function dropInlineCssDir(dirPath, options) {
       const html = Deno.readTextFileSync(file.path).toString();
       const doc = parse(html);
       await inlineHtml(doc);
-      await dropInlineHtml(doc, css, options);
+      await dropInlineHtml(doc, html, css, options);
       output(doc, outputPath, options, false);
     }
   } else {
@@ -154,7 +154,7 @@ async function dropInlineCssDir(dirPath, options) {
       const html = Deno.readTextFileSync(file.path).toString();
       const doc = parse(html);
       await inlineHtml(doc);
-      await dropInlineHtml(doc, undefined, options);
+      await dropInlineHtml(doc, html, undefined, options);
       output(doc, outputPath, options, false);
     }
   }
@@ -166,11 +166,11 @@ async function dropInlineCssFile(filePath, options) {
   if (options.css) {
     const css = Deno.readTextFileSync(options.css).toString();
     await inlineHtml(doc);
-    await dropInlineHtml(doc, css, options);
+    await dropInlineHtml(doc, html, css, options);
     output(doc, filePath, options, true);
   } else {
     await inlineHtml(doc);
-    dropInlineHtml(doc, undefined, options);
+    dropInlineHtml(doc, html, undefined, options);
     output(doc, filePath, options, true);
   }
 }
