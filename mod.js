@@ -170,7 +170,7 @@ async function dropInlineCssFile(filePath, options) {
     output(doc, filePath, options, true);
   } else {
     await inlineHtml(doc);
-    dropInlineHtml(doc, html, undefined, options);
+    await dropInlineHtml(doc, html, undefined, options);
     output(doc, filePath, options, true);
   }
 }
