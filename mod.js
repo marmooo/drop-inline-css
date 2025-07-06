@@ -62,12 +62,11 @@ async function dropCss(css, html) {
 async function inlineHtml(doc) {
   const linkSelector = "link[href][rel=stylesheet][class=inline-css]";
   const cssLinks = doc.querySelectorAll(linkSelector);
-  for (const cssLink of cssLinks) {
-    const url = cssLink._attrs.href;
-    const css = await getCss(url);
-    cssLinks[0].insertAdjacentHTML("beforebegin", `<style>${css}</style>`);
-    cssLink.remove();
-  }
+  const urls = cssLinks.map((cssLink) => cssLink._attrs.href);
+  const allCss = await getAllCss(urls);
+  const css = allCss.join("\n");
+  cssLinks[0].insertAdjacentHTML("beforebegin", `<style>${css}</style>`);
+  cssLinks.forEach((cssLink) => cssLink.remove());
   return doc;
 }
 
