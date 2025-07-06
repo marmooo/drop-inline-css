@@ -86,8 +86,8 @@ async function dropInlineHtmlBySelector(root, doc, html, css, options = {}) {
   const linkSelector = "link[href][rel=stylesheet][class=drop-inline-css]";
   const cssLinks = root.querySelectorAll(linkSelector);
   if (cssLinks.length == 0) return doc;
-  const urls = cssLinks.map((cssLink) => cssLink._attrs.href);
   if (!css) {
+    const urls = cssLinks.map((cssLink) => cssLink._attrs.href);
     const allCss = await getAllCss(urls);
     css = await dropCss(allCss.join("\n"), html);
   }
