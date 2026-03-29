@@ -6,6 +6,6 @@
     "commander": "npm:commander@^14.0.2",
     "lightningcss": "npm:lightningcss@^1.30.2",
     "node-html-parser": "npm:node-html-parser@^7.0.2",
-    "purgecss": "npm:purgecss@^7.0.2"
+    "purgecss": "npm:purgecss@^8.0.0"
   }
 }
