@@ -1,7 +1,7 @@
 {
   "imports": {
     "@deno/dnt": "jsr:@deno/dnt@^0.42.3",
-    "@std/fs": "jsr:@std/fs@^1.0.21",
+    "@std/fs": "jsr:@std/fs@^1.0.23",
     "@std/path": "jsr:@std/path@^1.1.4",
     "commander": "npm:commander@^14.0.3",
     "lightningcss": "npm:lightningcss@^1.32.0",
