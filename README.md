@@ -83,14 +83,20 @@ drop-inline-css -r src -o docs -c inline.css
 `inefficient.css`
 
 ```css
-p { text-decoration: underline; } /* used -> inline */
-span { font-size: 1rem; }  /* unused -> drop */
+p {
+  text-decoration: underline;
+} /* used -> inline */
+span {
+  font-size: 1rem;
+} /* unused -> drop */
 ```
 
 `efficient.css`
 
 ```css
-pre { color: red; }
+pre {
+  color: red;
+}
 ```
 
 `inlined1.html`
